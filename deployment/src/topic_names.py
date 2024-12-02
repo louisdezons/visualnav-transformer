@@ -3,7 +3,8 @@
 # image obs topics
 FRONT_IMAGE_TOPIC = "/usb_cam_front/image_raw"
 REVERSE_IMAGE_TOPIC = "/usb_cam_reverse/image_raw"
-IMAGE_TOPIC = "/usb_cam/image_raw"
+#IMAGE_TOPIC = "/usb_cam/image_raw"
+IMAGE_TOPIC = "/zed2/zed_node/rgb/image_rect_color"
 
 # exploration topics
 SUBGOALS_TOPIC = "/subgoals"

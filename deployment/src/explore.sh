@@ -18,7 +18,8 @@ tmux selectp -t 0    # go back to the first pane
 tmux select-pane -t 0
 tmux send-keys "source /opt/ros/noetic/setup.bash" Enter
 tmux send-keys "source ~/catkin_ws/devel/setup.bash" Enter
-tmux send-keys "roslaunch vint_locobot.launch" Enter
+# tmux send-keys "roslaunch vint_locobot.launch" Enter
+tmux send-keys "roscore" Enter
 
 # Run the navigate.py script with command line args in the second pane
 tmux select-pane -t 1

@@ -144,6 +144,7 @@ def transform_images(pil_imgs: List[PILImage.Image], image_size: List[int], cent
         pil_imgs = [pil_imgs]
     transf_imgs = []
     for pil_img in pil_imgs:
+        pil_img = pil_img.convert("RGB")
         w, h = pil_img.size
         if center_crop:
             if w > h:

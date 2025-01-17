@@ -8,7 +8,7 @@ import rospy
 from sensor_msgs.msg import Image
 from sensor_msgs.msg import Joy
 
-IMAGE_TOPIC = "/usb_cam/image_raw"
+IMAGE_TOPIC = "/zed_node/left_raw/image_raw_color"
 TOPOMAP_IMAGES_DIR = "../topomaps/images"
 obs_img = None
 
@@ -42,7 +42,7 @@ def main(args: argparse.Namespace):
         IMAGE_TOPIC, Image, callback_obs, queue_size=1)
     subgoals_pub = rospy.Publisher(
         "/subgoals", Image, queue_size=1)
-    joy_sub = rospy.Subscriber("joy", Joy, callback_joy)
+    joy_sub = rospy.Subscriber("/joy_teleop/joy", Joy, callback_joy)
 
     topomap_name_dir = os.path.join(TOPOMAP_IMAGES_DIR, args.dir)
     if not os.path.isdir(topomap_name_dir):

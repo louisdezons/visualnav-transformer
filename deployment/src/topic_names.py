@@ -4,7 +4,8 @@
 FRONT_IMAGE_TOPIC = "/usb_cam_front/image_raw"
 REVERSE_IMAGE_TOPIC = "/usb_cam_reverse/image_raw"
 #IMAGE_TOPIC = "/usb_cam/image_raw"
-IMAGE_TOPIC = "/zed2/zed_node/rgb/image_rect_color"
+IMAGE_TOPIC = "/zed_node/left_raw/image_raw_color" #To use zed camera online
+#IMAGE_TOPIC = "/zed2/zed_node/rgb/image_rect_color" #To use barrakuda rosbags topic
 
 # exploration topics
 SUBGOALS_TOPIC = "/subgoals"

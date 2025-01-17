@@ -19,19 +19,22 @@ JOY_CONFIG_PATH = "../config/joystick.yaml"
 with open(JOY_CONFIG_PATH, "r") as f:
 	joy_config = yaml.safe_load(f)
 DEADMAN_SWITCH = joy_config["deadman_switch"] # button index
+AUTONOMY_SWITCH = joy_config["autonomy_switch"]
 LIN_VEL_BUTTON = joy_config["lin_vel_button"]
 ANG_VEL_BUTTON = joy_config["ang_vel_button"]
-RATE = 9
+RATE = 200
 vel_pub = rospy.Publisher(VEL_TOPIC, Twist, queue_size=1)
 bumper_pub = rospy.Publisher(JOY_BUMPER_TOPIC, Bool, queue_size=1)
 button = None
+switch_auto = None
 bumper = False
 
 
 def callback_joy(data: Joy):
 	"""Callback function for the joystick subscriber"""
-	global vel_msg, button, bumper
+	global vel_msg, button, bumper, switch_auto
 	button = data.buttons[DEADMAN_SWITCH] 
+	switch_auto = data.buttons[AUTONOMY_SWITCH]
 	bumper_button = data.buttons[DEADMAN_SWITCH - 1]
 	if button is not None: # hold down the dead-man switch to teleop the robot
 		vel_msg.linear.x = MAX_V * data.axes[LIN_VEL_BUTTON]
@@ -44,11 +47,12 @@ def callback_joy(data: Joy):
 	else:
 		bumper = False
 
-
+def return_switch():
+	return switch_auto
 
 def main():
 	rospy.init_node("Joy2Locobot", anonymous=False)
-	joy_sub = rospy.Subscriber("joy", Joy, callback_joy)
+	joy_sub = rospy.Subscriber("/joy_teleop/joy", Joy, callback_joy)
 	rate = rospy.Rate(RATE)	
 	print("Registered with master node. Waiting for joystick input...")
 	while not rospy.is_shutdown():

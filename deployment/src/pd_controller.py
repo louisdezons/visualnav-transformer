@@ -6,6 +6,8 @@ from typing import Tuple
 import rospy
 from geometry_msgs.msg import Twist
 from std_msgs.msg import Float32MultiArray, Bool
+from sensor_msgs.msg import Joy
+from joy_teleop import callback_joy, return_switch
 
 from topic_names import (WAYPOINT_TOPIC, 
 			 			REACHED_GOAL_TOPIC)
@@ -20,7 +22,7 @@ MAX_V = robot_config["max_v"]
 MAX_W = robot_config["max_w"]
 VEL_TOPIC = robot_config["vel_navi_topic"]
 DT = 1/robot_config["frame_rate"]
-RATE = 9
+RATE = 100
 EPS = 1e-8
 WAYPOINT_TIMEOUT = 1 # seconds # TODO: tune this
 FLIP_ANG_VEL = np.pi/4
@@ -57,7 +59,7 @@ def pd_controller(waypoint: np.ndarray) -> Tuple[float]:
 	else:
 		v = dx / DT
 		w = np.arctan(dy/dx) / DT
-	v = np.clip(v, 0, MAX_V)
+	v = np.clip(v, -MAX_V, MAX_V)
 	w = np.clip(w, -MAX_W, MAX_W)
 	return v, w
 
@@ -80,6 +82,7 @@ def main():
 	rospy.init_node("PD_CONTROLLER", anonymous=False)
 	waypoint_sub = rospy.Subscriber(WAYPOINT_TOPIC, Float32MultiArray, callback_drive, queue_size=1)
 	reached_goal_sub = rospy.Subscriber(REACHED_GOAL_TOPIC, Bool, callback_reached_goal, queue_size=1)
+	joy_sub = rospy.Subscriber("/joy_teleop/joy", Joy, callback_joy)
 	vel_out = rospy.Publisher(VEL_TOPIC, Twist, queue_size=1)
 	rate = rospy.Rate(RATE)
 	print("Registered with master node. Waiting for waypoints...")
@@ -87,17 +90,18 @@ def main():
 		vel_msg = Twist()
 		if reached_goal:
 			vel_out.publish(vel_msg)
+			rate.sleep()
 			print("Reached goal! Stopping...")
 			return
-		elif waypoint.is_valid(verbose=True):
+		elif waypoint.is_valid(verbose=True) and return_switch():
 			v, w = pd_controller(waypoint.get())
 			if reverse_mode:
 				v *= -1
 			vel_msg.linear.x = v
 			vel_msg.angular.z = w
 			print(f"publishing new vel: {v}, {w}")
-		vel_out.publish(vel_msg)
-		rate.sleep()
+			vel_out.publish(vel_msg)
+			rate.sleep()
 	
 
 if __name__ == '__main__':
